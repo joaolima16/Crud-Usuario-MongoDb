@@ -1,5 +1,8 @@
 const ModelUser = require("../../Models/UserSchema")
 const moongose = require("mongoose");
+const Jwt = require("jsonwebtoken")
+const path = require("path")
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 class UserController {
 
     static async LoginUser(req, res) {
@@ -7,7 +10,9 @@ class UserController {
         try {
             const User = await ModelUser.findOne({email,password});
             if(User){
-                    return res.json({status:"Authorized",msg:"Usuário logado! "})
+                const id = User.id
+                const Token = Jwt.sign({id},process.env.SECRET,{expiresIn:300})
+                    return res.json({status:"Authorized",msg:"Usuário logado!",Token})
             }
             else{
                 return res.json({status: "Not Authorized",msg:"Credenciais incorretas"})
